@@ -25,9 +25,11 @@ class NL2SQLAgent:
         self.nl2sql_llm_name = os.getenv("NL2SQL_MODEL_NAME")
         self.rewrite_llm_name = os.getenv("REWRITE_MODEL_NAME")
         self.think_llm_name = os.getenv("THINK_MODEL_NAME")
-        self.default_model: str = "gpt-4.1"
+        self.default_model: str = os.getenv("DEFAULT_MODEL", "deepseek-chat")
         self.temperature: float = 0.0
-        self.top_p: float = 0.0
+        # DeepSeek API 要求 top_p 必须在 (0, 1.0] 范围内，不能是 0
+        # 设置为 None 表示不传递此参数，让 API 使用默认值
+        self.top_p: float = None
 
     @timer(key="rewrite_query")
     async def _text_to_rewrite(self, request_id,
@@ -300,7 +302,7 @@ class NL2SQLAgent:
             logger.info(f"[NL2SQL] [run_nl2sql], nl2sql_response={json.dumps(nl2sql_response, ensure_ascii=False)}")
             return nl2sql_response
         except Exception as e:
-            err_response = {"code": 6001, "data": "", "request_id": "request_id", "err_msg": e, "status": "data"}
+            err_response = {"code": 6001, "data": "", "request_id": request_id, "err_msg": str(e), "status": "data"}
             await self.queue.put(json.dumps(err_response, ensure_ascii=False))
             logger.error(f"[NL2SQL] request_id={request_id} NL2SQL模块执行失败！！！ {e}")
             return err_response
