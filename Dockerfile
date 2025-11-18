@@ -11,6 +11,8 @@ RUN pnpm install --frozen-lockfile
 COPY ui/ .
 # 增加 Node.js 内存限制，避免 esbuild 崩溃（服务器内存4G，设置为1.5G）
 ENV NODE_OPTIONS="--max-old-space-size=1536"
+# 设置后端 API 地址（容器内部调用）
+ENV SERVICE_BASE_URL="http://localhost:8080"
 RUN pnpm build
 
 # 后端构建阶段
@@ -135,6 +137,9 @@ WORKDIR /app
 COPY start_genie.sh .
 RUN tr -d '\r' < start_genie.sh > start_genie.sh.tmp && mv start_genie.sh.tmp start_genie.sh && \
     chmod +x start_genie.sh
+
+# 设置环境变量（前端调用后端 API 地址）
+ENV SERVICE_BASE_URL="http://localhost:8080"
 
 EXPOSE 3000 8080 1601
 

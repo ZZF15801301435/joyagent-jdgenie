@@ -1,3 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-uv run server.py
+# 激活虚拟环境
+. .venv/bin/activate
+
+# 运行Python服务器
+python server.py
