@@ -1,0 +1,38 @@
+# 排除 node_modules
+**/node_modules/
+ui/node_modules/
+
+# 排除 Python 虚拟环境
+**/.venv/
+**/venv/
+**/__pycache__/
+**/*.pyc
+
+# 排除构建产物
+**/dist/
+**/target/
+**/build/
+
+# 排除日志文件
+**/*.log
+**/logs/
+
+# 排除数据库文件
+**/*.db
+**/*.sqlite
+
+# 排除 IDE 文件
+**/.idea/
+**/.vscode/
+
+# 排除环境变量文件
+**/.env
+!**/.env_template
+
+# 排除 Git 文件
+**/.git/
+
+# 排除其他
+**/.DS_Store
+**/Thumbs.db
+

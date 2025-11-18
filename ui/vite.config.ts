@@ -36,9 +36,16 @@ export default defineConfig(({ command, mode }) => {
     build: {
       outDir: 'dist',
       sourcemap: false,
-      minify: 'terser' as const,
-      rollupOptions: {output: {inlineDynamicImports: true},},
+      minify: 'esbuild', // 使用 esbuild 而不是 terser，更省内存
+      rollupOptions: {
+        output: {
+          inlineDynamicImports: true,
+          manualChunks: undefined, // 禁用代码分割以减少内存使用
+        },
+      },
       cssCodeSplit: false,
+      cssMinify: 'lightningcss', // 使用 lightningcss 而不是 esbuild 处理 CSS
+      chunkSizeWarningLimit: 1000, // 增加 chunk 大小警告限制
     },
   }
 });

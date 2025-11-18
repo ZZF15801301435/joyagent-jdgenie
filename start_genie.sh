@@ -78,12 +78,23 @@ if [ -d "tool" ]; then
         echo "更新.env文件并导出环境变量..."
         
         # 如果环境变量已经设置，则更新.env文件
-        if [ ! -z "$OPENAI_API_KEY" ]; then
+        # 优先使用 DeepSeek 环境变量，如果没有则使用 OpenAI 环境变量（兼容性）
+        if [ ! -z "$DEEPSEEK_API_KEY" ]; then
+            echo "使用环境变量DEEPSEEK_API_KEY更新.env文件"
+            sed -i "s|DEEPSEEK_API_KEY=.*|DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}|g" .env
+            # 同时更新 OPENAI_API_KEY（因为代码使用 OPENAI_* 变量来兼容 DeepSeek）
+            sed -i "s|OPENAI_API_KEY=.*|OPENAI_API_KEY=${DEEPSEEK_API_KEY}|g" .env
+        elif [ ! -z "$OPENAI_API_KEY" ]; then
             echo "使用环境变量OPENAI_API_KEY更新.env文件"
             sed -i "s|OPENAI_API_KEY=.*|OPENAI_API_KEY=${OPENAI_API_KEY}|g" .env
         fi
         
-        if [ ! -z "$OPENAI_BASE_URL" ]; then
+        if [ ! -z "$DEEPSEEK_API_BASE" ]; then
+            echo "使用环境变量DEEPSEEK_API_BASE更新.env文件"
+            sed -i "s|DEEPSEEK_API_BASE=.*|DEEPSEEK_API_BASE=${DEEPSEEK_API_BASE}|g" .env
+            # 同时更新 OPENAI_BASE_URL（因为代码使用 OPENAI_* 变量来兼容 DeepSeek）
+            sed -i "s|OPENAI_BASE_URL=.*|OPENAI_BASE_URL=${DEEPSEEK_API_BASE}/v1|g" .env
+        elif [ ! -z "$OPENAI_BASE_URL" ]; then
             echo "使用环境变量OPENAI_BASE_URL更新.env文件"
             sed -i "s|OPENAI_BASE_URL=.*|OPENAI_BASE_URL=${OPENAI_BASE_URL}|g" .env
         fi
@@ -92,13 +103,7 @@ if [ -d "tool" ]; then
         echo "从.env文件导出环境变量..."
         export $(grep -v '^#' .env | xargs)
         
-        # 确保环境变量在全局范围内可用
-        echo "将环境变量添加到/etc/environment以确保在所有shell会话中可用"
-        echo "OPENAI_API_KEY=${OPENAI_API_KEY}" >> /etc/environment
-        echo "OPENAI_BASE_URL=${OPENAI_BASE_URL}" >> /etc/environment
-        echo "OPENAI_API_BASE=${OPENAI_BASE_URL}" >> /etc/environment
-        
-        echo "环境变量已导出: OPENAI_API_KEY=${OPENAI_API_KEY}, OPENAI_BASE_URL=${OPENAI_BASE_URL}, OPENAI_API_BASE=${OPENAI_BASE_URL}"
+        echo "环境变量已导出: OPENAI_API_KEY=${OPENAI_API_KEY:-${DEEPSEEK_API_KEY}}, OPENAI_BASE_URL=${OPENAI_BASE_URL:-${DEEPSEEK_API_BASE}/v1}"
     else
         echo "警告: .env文件不存在，无法导出环境变量"
     fi
